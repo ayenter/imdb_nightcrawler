@@ -61,7 +61,7 @@ def get_movies(file = "data/movies.csv"):
 def filter_min_votes(movies, min_votes, index=2):
 	qualify = []
 	bar = progressbar.ProgressBar()
-	print("Filtering Movies " + " Over " + min_votes + " Votes")
+	print("Filtering Movies " + " Over " + str(min_votes) + " Votes")
 	for m in bar(movies):
 		if m[index] >= min_votes:
 			qualify.append(m)

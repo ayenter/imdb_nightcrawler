@@ -10,7 +10,10 @@ import progressbar
 
 
 def load_word2vec(path='data/GoogleNews-vectors-negative300.bin'):
+	print("Loaded Vectors...")
 	model = KeyedVectors.load_word2vec_format(path, binary=True)
+	print("Vectors Loaded")
+	print("")
 	return model
 
 def get_labels_vectors(movies, word2vec, info_size=100, padding='</s>'):
@@ -58,13 +61,13 @@ def _write_batch_to_lmdb(db, batch):
         _write_batch_to_lmdb(db, batch)
 
 # def create_dataset(data_y, data_x):
-	
+
 # 	batch = []
 
 
 
 def main(data_file='data/movies.csv', vecs_file='data/GoogleNews-vectors-negative300.bin', padding='</s>', word_size=100):
-	word2vec = loadt_word2vec(data_file)
+	word2vec = load_word2vec(data_file)
 	train,test = idh.get_processed_movies(data_file)
 	train_y,train_x = get_labels_vectors(train, word2vec, word_size, padding)
 	test_y,test_x = get_labels_vectors(test, word2vec, word_size, padding)
