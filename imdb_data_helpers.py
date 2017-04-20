@@ -38,8 +38,9 @@ def get_movies(file = "data/movies.csv"):
 	movies = []
 	with open(file, 'rb') as f:
 		reader = csv.reader(f, delimiter=',', quotechar='"', escapechar='\\')
-		for row in reader:
-
+		bar = progressbar.ProgressBar()
+		print("Grabbing Movies")
+		for row in bar(reader):
 			movies.append([
 				int(row[0]), #id
 				int(row[1]), #year
@@ -54,14 +55,18 @@ def get_movies(file = "data/movies.csv"):
 				row[10]
 				])
 	print("# movies :  " + str(len(movies)))
+	print("")
 	return movies
 
 def filter_min_votes(movies, min_votes, index=2):
 	qualify = []
-	for m in movies:
+	bar = progressbar.ProgressBar()
+	print("Filtering Movies " + " Over " + min_votes + " Votes")
+	for m in bar(movies):
 		if m[index] >= min_votes:
 			qualify.append(m)
 	print("# votes over " + str(min_votes) + " :  " + str(len(qualify)))
+	print("")
 	return qualify
 
 def whole_round(x, base=5):
@@ -78,6 +83,7 @@ def get_train_test(movies, batch_size=200, train_split=.8, sort_index=1):
 	num_test = size - num_train
 	print("Train:" +str(round(float(num_train)/size, 4)*100) + "% / Test:" + str(round(float(num_test)/size, 4)*100) + "%")
 	print("Train:" + str(num_train) + " / Test:" + str(num_test))
+	print("")
 	return [sorted_movies[:num_train], sorted_movies[num_train:]]
 
 def remove_articles(text):
@@ -96,7 +102,11 @@ def to_text(m, cast_limit=10, text_limit=-1):
 		return text
 
 def all_to_text(movies, cast_limit=10, text_limit=-1):
-	return [[m[3],to_text(m, cast_limit, text_limit)] for m in movies]
+	bar = progressbar.ProgressBar()
+	print("Simplifying Movies to Text")
+	results = [[m[3],to_text(m, cast_limit, text_limit)] for m in bar(movies)]
+	print("")
+	return results
 
 def get_processed_movies(file="data/movies.csv", min_votes=50, batch_size=200, train_split=.8, sort_index=1, cast_limit=10, text_limit=-1):
 	train, test = get_train_test(filter_min_votes(get_movies(file), min_votes), batch_size, train_split, sort_index)
