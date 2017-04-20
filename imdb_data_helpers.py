@@ -6,6 +6,26 @@ import os.path
 from zipfile import ZipFile
 
 
+def clean_str(string):
+    """
+    Tokenization/string cleaning for all datasets except for SST.
+    Original taken from https://github.com/yoonkim/CNN_sentence/blob/master/process_data.py
+    """
+    string = re.sub(r"[^A-Za-z0-9(),!?\'\`]", " ", string)
+    string = re.sub(r"\'s", " \'s", string)
+    string = re.sub(r"\'ve", " \'ve", string)
+    string = re.sub(r"n\'t", " n\'t", string)
+    string = re.sub(r"\'re", " \'re", string)
+    string = re.sub(r"\'d", " \'d", string)
+    string = re.sub(r"\'ll", " \'ll", string)
+    string = re.sub(r",", " , ", string)
+    string = re.sub(r"!", " ! ", string)
+    string = re.sub(r"\(", " \( ", string)
+    string = re.sub(r"\)", " \) ", string)
+    string = re.sub(r"\?", " \? ", string)
+    string = re.sub(r"\s{2,}", " ", string)
+    return string.strip().lower()
+
 def get_movies(file = "data/movies.csv"):
 	if not os.path.isfile(file):
 		if os.path.isfile(file+".zip"):
@@ -64,16 +84,20 @@ def remove_articles(text):
 	return " ".join([w for w in text.split() if w.lower() not in articles])
 
 
-def to_text(m, cast_limit=10, text_limit=100):
+def to_text(m, cast_limit=10, text_limit=-1):
 	cast = m[8]+m[9]
 	text = " ".join(m[4]+m[5]+m[6]+m[7]+cast[:cast_limit]) + " " + m[10] + " " + " ".join(cast[cast_limit:])
 	#text = remove_articles(text)
-	return " ".join(text.split()[:text_limit])
+	text = clean_str(text)
+	if text_limit >= 0:
+		return " ".join(text.split()[:text_limit])
+	else:
+		return text
 
-def all_to_text(movies, cast_limit=10, text_limit=100):
+def all_to_text(movies, cast_limit=10, text_limit=-1):
 	return [[m[3],to_text(m, cast_limit, text_limit)] for m in movies]
 
-def get_processed_movies(file="data/movies.csv", min_votes=50, batch_size=200, train_split=.8, sort_index=1, cast_limit=10, text_limit=100):
+def get_processed_movies(file="data/movies.csv", min_votes=50, batch_size=200, train_split=.8, sort_index=1, cast_limit=10, text_limit=-1):
 	train, test = get_train_test(filter_min_votes(get_movies(file), min_votes), batch_size, train_split, sort_index)
 	shuffle(train)
 	shuffle(test)

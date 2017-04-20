@@ -3,12 +3,32 @@ import re
 import itertools
 from collections import Counter
 import os
-from gensim.models import word2vec
+from gensim.models import KeyedVectors
+import imdb_data_helpers as idh
+import argparse
 
 
 def load_google_word2vec(path):
-    model = word2vec.Word2Vec.load_word2vec_format(path, binary=True)
+	model = KeyedVectors.load_word2vec_format(path, binary=True)
     return model
+
+def get_labels_vectors(movies, word2vec, info_size=100, padding='</s>'):
+	labels = []
+	vectors = []
+	for m in movies:
+		labels.append(m[0])
+		vector = []
+		for word in m[1].split():
+			if word in word2vec:
+				vector.append(word2vec[word])
+			if len(vector) == info_size:
+				break
+		while len(vector) < info_size:
+			vector.append(word2vec['</s>'])
+		vectors.append(vector)
+	vectors = np.array(vectors)
+	labels = np.array(labels)
+	return [labels, vectors]
 
 
 def _write_batch_to_lmdb(db, batch):
@@ -33,3 +53,33 @@ def _write_batch_to_lmdb(db, batch):
                 raise e
         # try again
         _write_batch_to_lmdb(db, batch)
+
+#def create_dataset()
+
+def main(data_file='data/movies.csv', vecs_file='data/GoogleNews-vectors-negative300.bin', padding='</s>', word_size=100):
+	word2vec = load_google_word2vec(data_file)
+	train,test = idh.get_processed_movies(data_file)
+	train_y,train_x = get_labels_vectors(train, word2vec, word_size, padding)
+	test_y,test_x = get_labels_vectors(test, word2vec, word_size, padding)
+
+
+if __name__ == '__main__':
+	parser = argparse.ArgumentParser(description='Create Dataset from CSV and Vectors')
+	parser.add_argument('--data', help='Movie CSV file', default='data/movies.csv', action="store")
+	parser.add_argument('--vecs', help='Vector binary file', default='data/GoogleNews-vectors-negative300.bin', action="store")
+	parser.add_argument('--padd', help='Padding string', default='</s>', action="store")
+    parser.add_argument('--words', help='Number of words', type=int, default=100, action="store")
+    args = vars(parser.parse_args())
+
+    if not os.path.exists('lmdbs'):
+		os.makedirs('lmdbs')
+
+    start_time = time.time()
+
+    main(args['data'],args['vecs'],args['padd'],args['words'])
+
+    print 'Done after %s seconds' % (time.time() - start_time)
+
+
+
+
