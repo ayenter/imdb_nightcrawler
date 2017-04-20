@@ -7,10 +7,14 @@ from gensim.models import KeyedVectors
 import imdb_data_helpers as idh
 import argparse
 import progressbar
+import caffe
+import lmdb
+import time
+import shutil
 
 
 def load_word2vec(path='data/GoogleNews-vectors-negative300.bin'):
-	print("Loaded Vectors...")
+	print("Loading Vectors...")
 	model = KeyedVectors.load_word2vec_format(path, binary=True)
 	print("Vectors Loaded")
 	print("")
@@ -60,17 +64,53 @@ def _write_batch_to_lmdb(db, batch):
         # try again
         _write_batch_to_lmdb(db, batch)
 
-# def create_dataset(data_y, data_x):
 
-# 	batch = []
+def create_dataset_x(data_x, folder):
+	output_db = lmdb.open(folder, map_async=True, max_dbs=0)
+	batch = []
+	for i in range(len(data_x)):
+		datum = caffe.io.array_to_datum(data_x[i].astype('float')[np.newaxis, ...])
+		batch.append(('{:0>10d}'.format(i+1), datum))
+		if len(batch) >= db_batch_size:
+				_write_batch_to_lmdb(output_db, batch)
+				batch=[]
+	output_db.close()
 
 
+def create_dataset_y(data_y, folder):
+	output_db = lmdb.open(folder, map_async=True, max_dbs=0)
+	batch = []
+	for i in range(len(data_x)):
+		datum = caffe.io.array_to_datum(data_x[i].astype('float').reshape((1,1,1)))
+		batch.append(('{:0>10d}'.format(i+1), datum))
+		if len(batch) >= db_batch_size:
+				_write_batch_to_lmdb(output_db, batch)
+				batch=[]
+	output_db.close()
+
+def dir_check(folder):
+	if os.path.exists('lmdbs/' + folder):
+		shutil.rmtree('lmdbs/' + folder)
+	os.makedirs('lmdbs/' + folder)
 
 def main(data_file='data/movies.csv', vecs_file='data/GoogleNews-vectors-negative300.bin', padding='</s>', word_size=100):
 	word2vec = load_word2vec(data_file)
 	train,test = idh.get_processed_movies(data_file)
 	train_y,train_x = get_labels_vectors(train, word2vec, word_size, padding)
 	test_y,test_x = get_labels_vectors(test, word2vec, word_size, padding)
+
+	#lmdb
+	if not os.path.exists('lmdbs'):
+		os.makedirs('lmdbs')
+
+	dir_check("train_x")
+	create_dataset_x(train_x, "train_x")
+	dir_check("train_y")
+	create_dataset_y(train_y, "train_y")
+	dir_check("test_x")
+	create_dataset_x(test_x, "test_x")
+	dir_check("test_y")
+	create_dataset_y(test_y, "test_y")
 
 
 if __name__ == '__main__':
