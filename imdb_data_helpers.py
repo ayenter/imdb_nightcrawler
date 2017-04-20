@@ -2,10 +2,18 @@ import csv
 from imdb import IMDb
 import progressbar
 from random import shuffle
+import os.path
+from zipfile import ZipFile
 
-# p9.movie_id, p9.year, p9.votes, p9.rating, p9.genres, p7.director, p7.writer, p9.editor, p7.cast, p7.cast_extra, p9.plot
 
-def get_movies(file = "data.csv"):
+def get_movies(file = "data/movies.csv"):
+	if not os.path.isfile(file):
+		if os.path.isfile(file+".zip"):
+			print("EXTRACTING " + file + ".zip")
+			ZipFile(file+".zip").extractall(os.path.split(file)[0])
+		else:
+			print("NO FILE \"" + file + "\" OR \"" + file  + ".zip\"")
+			raise OSError(2, 'No such file or directory', file)
 	movies = []
 	with open(file, 'rb') as f:
 		reader = csv.reader(f, delimiter=',', quotechar='"', escapechar='\\')
@@ -24,7 +32,7 @@ def get_movies(file = "data.csv"):
 				[" ".join(n.split(", ")[::-1]) for n in row[9].split('|')] if row[9]!=('N') else [], #cast_extra
 				row[10]
 				])
-	print "# movies :  " + str(len(movies))
+	print("# movies :  " + str(len(movies)))
 	return movies
 
 def filter_min_votes(movies, min_votes, index=2):
@@ -32,7 +40,7 @@ def filter_min_votes(movies, min_votes, index=2):
 	for m in movies:
 		if m[index] >= min_votes:
 			qualify.append(m)
-	print "# votes over " + str(min_votes) + " :  " + str(len(qualify))
+	print("# votes over " + str(min_votes) + " :  " + str(len(qualify)))
 	return qualify
 
 def whole_round(x, base=5):
@@ -47,8 +55,8 @@ def get_train_test(movies, batch_size=200, train_split=.8, sort_index=1):
 	num_train = int(size*train_split)
 	num_train = whole_round(num_train, batch_size)
 	num_test = size - num_train
-	print "Train:" +str(round(float(num_train)/size, 4)*100) + "% / Test:" + str(round(float(num_test)/size, 4)*100) + "%"
-	print "Train:" + str(num_train) + " / Test:" + str(num_test)
+	print("Train:" +str(round(float(num_train)/size, 4)*100) + "% / Test:" + str(round(float(num_test)/size, 4)*100) + "%")
+	print("Train:" + str(num_train) + " / Test:" + str(num_test))
 	return [sorted_movies[:num_train], sorted_movies[num_train:]]
 
 def remove_articles(text):
@@ -63,17 +71,15 @@ def to_text(m, cast_limit=10, text_limit=100):
 	return " ".join(text.split()[:text_limit])
 
 def all_to_text(movies, cast_limit=10, text_limit=100):
-	return [to_text(m, cast_limit, text_limit) for m in movies]
+	return [[m[3],to_text(m, cast_limit, text_limit)] for m in movies]
 
-def process_movies(file="data.csv", min_votes=50, batch_size=200, train_split=.8, sort_index=1, cast_limit=10, text_limit=100):
+def get_processed_movies(file="data/movies.csv", min_votes=50, batch_size=200, train_split=.8, sort_index=1, cast_limit=10, text_limit=100):
 	train, test = get_train_test(filter_min_votes(get_movies(file), min_votes), batch_size, train_split, sort_index)
 	shuffle(train)
 	shuffle(test)
 	return [all_to_text(train, cast_limit, text_limit), all_to_text(test, cast_limit, text_limit)]
 
-
 """
 import imdb_data_helpers as idh
-movies_50 = idh.filter_min_votes(idh.get_movies(),50)
-train, test = idh.get_train_test(movies_50)
+train,test = idh.get_processed_movies()
 """
