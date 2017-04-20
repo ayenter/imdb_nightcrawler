@@ -100,7 +100,7 @@ def dir_check(folder):
 	os.makedirs('lmdbs/' + folder)
 
 def main(data_file='data/movies.csv', vecs_file='data/GoogleNews-vectors-negative300.bin', padding='</s>', word_size=100):
-	word2vec = load_word2vec(data_file)
+	word2vec = load_word2vec(vecs_file)
 	train,test = idh.get_processed_movies(data_file)
 	train_y,train_x = get_labels_vectors(train, word2vec, word_size, padding)
 	test_y,test_x = get_labels_vectors(test, word2vec, word_size, padding)
