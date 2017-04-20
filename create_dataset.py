@@ -66,9 +66,12 @@ def _write_batch_to_lmdb(db, batch):
 
 
 def create_dataset_x(data_x, folder):
+	folder = 'lmdbs/'+folder
 	output_db = lmdb.open(folder, map_async=True, max_dbs=0)
 	batch = []
-	for i in range(len(data_x)):
+	bar = progressbar.ProgressBar()
+	print("Generating data lmdb for " + folder)
+	for i in bar(range(len(data_x))):
 		datum = caffe.io.array_to_datum(data_x[i].astype('float')[np.newaxis, ...])
 		batch.append(('{:0>10d}'.format(i+1), datum))
 		if len(batch) >= db_batch_size:
@@ -78,10 +81,13 @@ def create_dataset_x(data_x, folder):
 
 
 def create_dataset_y(data_y, folder):
+	folder = 'lmdbs/'+folder
 	output_db = lmdb.open(folder, map_async=True, max_dbs=0)
 	batch = []
-	for i in range(len(data_x)):
-		datum = caffe.io.array_to_datum(data_x[i].astype('float').reshape((1,1,1)))
+	bar = progressbar.ProgressBar()
+	print("Generating labels lmdb for " + folder)
+	for i in bar(range(len(data_y))):
+		datum = caffe.io.array_to_datum(data_y[i].astype('float').reshape((1,1,1)))
 		batch.append(('{:0>10d}'.format(i+1), datum))
 		if len(batch) >= db_batch_size:
 				_write_batch_to_lmdb(output_db, batch)
