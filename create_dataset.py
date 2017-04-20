@@ -69,7 +69,7 @@ def create_dataset_x(data_x, folder):
 	folder = 'lmdbs/'+folder
 	output_db = lmdb.open(folder, map_async=True, max_dbs=0)
 	batch = []
-	db_batch_size = 200
+	db_batch_size = 1000
 	bar = progressbar.ProgressBar()
 	print("Generating data lmdb for " + folder)
 	for i in bar(range(len(data_x))):
@@ -78,6 +78,8 @@ def create_dataset_x(data_x, folder):
 		if len(batch) >= db_batch_size:
 				_write_batch_to_lmdb(output_db, batch)
 				batch=[]
+	if len(batch)>0:
+		_write_batch_to_lmdb(output_db, batch)
 	output_db.close()
 
 
@@ -85,7 +87,7 @@ def create_dataset_y(data_y, folder):
 	folder = 'lmdbs/'+folder
 	output_db = lmdb.open(folder, map_async=True, max_dbs=0)
 	batch = []
-	db_batch_size = 200
+	db_batch_size = 1000
 	bar = progressbar.ProgressBar()
 	print("Generating labels lmdb for " + folder)
 	for i in bar(range(len(data_y))):
@@ -94,6 +96,8 @@ def create_dataset_y(data_y, folder):
 		if len(batch) >= db_batch_size:
 				_write_batch_to_lmdb(output_db, batch)
 				batch=[]
+	if len(batch)>0:
+		_write_batch_to_lmdb(output_db, batch)
 	output_db.close()
 
 def dir_check(folder):

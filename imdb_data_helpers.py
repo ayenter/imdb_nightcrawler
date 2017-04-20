@@ -80,11 +80,12 @@ def get_train_test(movies, batch_size=200, train_split=.8, sort_index=1):
 		sorted_movies = shuffle(movies)
 	num_train = int(size*train_split)
 	num_train = whole_round(num_train, batch_size)
+	size = size - (size%batch_size)
 	num_test = size - num_train
 	print("Train:" +str(round(float(num_train)/size, 4)*100) + "% / Test:" + str(round(float(num_test)/size, 4)*100) + "%")
 	print("Train:" + str(num_train) + " / Test:" + str(num_test))
 	print("")
-	return [sorted_movies[:num_train], sorted_movies[num_train:]]
+	return [sorted_movies[:num_train], sorted_movies[num_train:size]]
 
 def remove_articles(text):
 	articles = ['a', 'an', 'and', 'the']
