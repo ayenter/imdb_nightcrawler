@@ -4,6 +4,7 @@ import progressbar
 from random import shuffle
 import os.path
 from zipfile import ZipFile
+import re
 
 
 def clean_str(string):
