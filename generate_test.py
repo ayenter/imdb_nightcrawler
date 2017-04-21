@@ -71,9 +71,9 @@ if __name__ == '__main__':
 	start_time = time.time()
 
 	if args['t']:
-		movie = title_to_movie(ia, args['title'])
+		movie = title_to_movie(ia, args['movie'])
 	elif args['i']:
-		movie = ia.get_movie(imdb_id)
+		movie = ia.get_movie(args['movie'])
 	else:
 		print("NO OPTION CHOSEN")
 		movie = None
