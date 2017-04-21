@@ -62,7 +62,7 @@ if __name__ == '__main__':
 			to_remove.append(f)
 	if len(to_remove)>0:
 		approve_remove = raw_input("Remove old temporary files " + str(to_remove) + " ? (y/n) :  ")
-		if to_remove.lower() == 'y':
+		if approve_remove.lower() == 'y':
 			for f in to_remove:
 				shutil.rmtree('lmdbs/' + f)
 
