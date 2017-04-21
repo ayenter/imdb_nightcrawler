@@ -32,7 +32,7 @@ def main(movie, vecs_file='data/GoogleNews-vectors-negative300.bin', padding='</
 		else:
 			movie_data.append([])
 	movie_data = movie_data + [[], movie['plot'][0] if movie.has_key('plot') else ""]
-	label,vector = cd.get_labels_vectors([None, idh.to_text(movie_data)], word2vec, word_size, padding)
+	label,vector = cd.get_labels_vectors([0, idh.to_text(movie_data)], word2vec, word_size, padding)
 
 	folder_name = 'temp_' + idh.clean_str(movie['title']).replace(' ', '_')
 
@@ -68,8 +68,6 @@ if __name__ == '__main__':
 
 	ia = IMDb()
 
-	start_time = time.time()
-
 	if args['t']:
 		movie = title_to_movie(ia, args['movie'])
 	elif args['i']:
@@ -78,11 +76,11 @@ if __name__ == '__main__':
 		print("NO OPTION CHOSEN")
 		movie = None
 	if movie is not None:
+		start_time = time.time()
 		ia.update(movie)
 		main(movie, args['vecs'],args['padd'],args['words'])
 		print("Rating: " + str(movie['rating'] if movie.has_key('rating') else "No Rating"))
-
-	print 'Done after %s seconds' % (time.time() - start_time)
+		print('Done after %s seconds' % (time.time() - start_time))
 
 
 
