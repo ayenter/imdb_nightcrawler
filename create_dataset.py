@@ -24,7 +24,7 @@ def get_labels_vectors(movies, word2vec, info_size=100, padding='</s>'):
 	labels = []
 	vectors = []
 	bar = progressbar.ProgressBar()
-	print("Converting Movies to Vectors")
+	print("Converting Movie(s) to Vectors")
 	for m in bar(movies):
 		labels.append(m[0])
 		vector = []
@@ -38,6 +38,7 @@ def get_labels_vectors(movies, word2vec, info_size=100, padding='</s>'):
 		vectors.append(vector)
 	vectors = np.array(vectors)
 	labels = np.array(labels)
+	print("")
 	return [labels, vectors]
 
 
@@ -67,6 +68,7 @@ def _write_batch_to_lmdb(db, batch):
 
 def create_dataset_x(data_x, folder):
 	folder = 'lmdbs/'+folder
+	dir_check(folder)
 	output_db = lmdb.open(folder, map_async=True, max_dbs=0)
 	batch = []
 	db_batch_size = 1000
@@ -81,10 +83,12 @@ def create_dataset_x(data_x, folder):
 	if len(batch)>0:
 		_write_batch_to_lmdb(output_db, batch)
 	output_db.close()
+	print("")
 
 
 def create_dataset_y(data_y, folder):
 	folder = 'lmdbs/'+folder
+	dir_check(folder)
 	output_db = lmdb.open(folder, map_async=True, max_dbs=0)
 	batch = []
 	db_batch_size = 1000
@@ -99,30 +103,30 @@ def create_dataset_y(data_y, folder):
 	if len(batch)>0:
 		_write_batch_to_lmdb(output_db, batch)
 	output_db.close()
+	print("")
 
 def dir_check(folder):
-	if os.path.exists('lmdbs/' + folder):
-		shutil.rmtree('lmdbs/' + folder)
-	os.makedirs('lmdbs/' + folder)
+	if os.path.exists(folder):
+		shutil.rmtree(folder)
+	os.makedirs(folder)
 
 def main(data_file='data/movies.csv', vecs_file='data/GoogleNews-vectors-negative300.bin', padding='</s>', word_size=100):
 	word2vec = load_word2vec(vecs_file)
 	train,test = idh.get_processed_movies(data_file)
 	train_y,train_x = get_labels_vectors(train, word2vec, word_size, padding)
 	test_y,test_x = get_labels_vectors(test, word2vec, word_size, padding)
+	datas = [
+			(train_x, "train_x"),
+			(train_y, "train_y"),
+			(test_x, "test_x"),
+			(test_y, "test_y")]
 
 	#lmdb
 	if not os.path.exists('lmdbs'):
 		os.makedirs('lmdbs')
 
-	dir_check("train_x")
-	create_dataset_x(train_x, "train_x")
-	dir_check("train_y")
-	create_dataset_y(train_y, "train_y")
-	dir_check("test_x")
-	create_dataset_x(test_x, "test_x")
-	dir_check("test_y")
-	create_dataset_y(test_y, "test_y")
+	for data, folder in datas:
+		create_dataset_x(data, folder)
 
 
 if __name__ == '__main__':
