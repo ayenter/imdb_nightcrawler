@@ -17,7 +17,8 @@ import create_dataset as cd
 def title_to_movie(ia, title):
 	movies = ia.search_movie(title)
 	for m in movies[:3]:
-		resp = raw_input("Did you mean \"" + m['title'] + "\"? (y/n) :  ")
+		y = m['year'] if m.has_key('year') else "????"
+		resp = raw_input("Did you mean \"" + m['title'] + " (" + str(y) + ")\"? (y/n) :  ")
 		if resp.lower()=='y':
 			return m
 	return None
@@ -28,10 +29,10 @@ def main(movie, vecs_file='data/GoogleNews-vectors-negative300.bin', padding='</
 	movie_keys = ['genre', 'director', 'writer', 'editor', 'cast']
 	for k in movie_keys:
 		if movie.has_key(k):
-			movie_data.append([str(p) for p in movie[k]])
+			movie_data.append([str(p).decode('utf-8') for p in movie[k]])
 		else:
 			movie_data.append([])
-	movie_data = movie_data + [[], movie['plot'][0] if movie.has_key('plot') else ""]
+	movie_data = movie_data + [[], movie['plot'][0].decode('utf-8') if movie.has_key('plot') else ""]
 	label,vector = cd.get_labels_vectors([[None, idh.to_text(movie_data)]], word2vec, word_size, padding)
 
 	folder_name = 'temp_' + idh.clean_str(movie['title']).replace(' ', '_')
