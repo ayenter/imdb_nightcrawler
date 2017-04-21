@@ -14,7 +14,7 @@ import shutil
 from imdb import IMDb
 import create_dataset as cd
 
-def get_imdb_id(ia, title):
+def title_to_movie(ia, title):
 	movies = ia.search_movie(title)
 	for m in movies[:3]:
 		resp = input("Did you mean \"" + m['title'] + "\"? (y/n) :  ")
