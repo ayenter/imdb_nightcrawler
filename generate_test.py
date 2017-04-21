@@ -33,7 +33,8 @@ def main(movie, vecs_file='data/GoogleNews-vectors-negative300.bin', padding='</
 		else:
 			movie_data.append([])
 	movie_data = movie_data + [[], movie['plot'][0].decode('utf-8') if movie.has_key('plot') else ""]
-	label,vector = cd.get_labels_vectors([[None, idh.to_text(movie_data)]], word2vec, word_size, padding)
+	movie_text = idh.to_text(movie_data)
+	label,vector = cd.get_labels_vectors([[None, movie_text]], word2vec, word_size, padding)
 
 	folder_name = 'temp_' + idh.clean_str(movie['title']).replace(' ', '_')
 
@@ -42,6 +43,7 @@ def main(movie, vecs_file='data/GoogleNews-vectors-negative300.bin', padding='</
 		os.makedirs('lmdbs')
 
 	cd.create_dataset_x(vector, folder_name)
+	print("Movie Text: " + str(movie_text))
 
 
 if __name__ == '__main__':
