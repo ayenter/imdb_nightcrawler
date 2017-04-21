@@ -23,7 +23,7 @@ def title_to_movie(ia, title):
 	return None
 
 def main(movie, vecs_file='data/GoogleNews-vectors-negative300.bin', padding='</s>', word_size=100):
-	word2vec = load_word2vec(vecs_file)
+	word2vec = cd.load_word2vec(vecs_file)
 	movie_data = [None,None,None,None]
 	movie_keys = ['genre', 'director', 'writer', 'editor', 'cast']
 	for k in movie_keys:
