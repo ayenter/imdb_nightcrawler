@@ -17,7 +17,7 @@ import create_dataset as cd
 def title_to_movie(ia, title):
 	movies = ia.search_movie(title)
 	for m in movies[:3]:
-		resp = input("Did you mean \"" + m['title'] + "\"? (y/n) :  ")
+		resp = raw_input("Did you mean \"" + m['title'] + "\"? (y/n) :  ")
 		if resp.lower()=='y':
 			return m
 	return None
@@ -61,7 +61,7 @@ if __name__ == '__main__':
 		if f[:5] == 'temp_':
 			to_remove.append(f)
 	if len(to_remove)>0:
-		approve_remove = input("Remove old temporary files " + str(to_remove) + " ? (y/n) :  ")
+		approve_remove = raw_input("Remove old temporary files " + str(to_remove) + " ? (y/n) :  ")
 		if to_remove.lower() == 'y':
 			for f in to_remove:
 				shutil.rmtree('lmdbs/' + f)
