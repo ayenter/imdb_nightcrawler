@@ -5,6 +5,7 @@ from random import shuffle
 import os.path
 from zipfile import ZipFile
 import re
+import numpy as np
 
 
 def clean_str(string):
@@ -109,8 +110,18 @@ def all_to_text(movies, cast_limit=10, text_limit=-1):
 	print("")
 	return results
 
+def normalize_labels(movies, index=3):
+	ratings = [m[index] for m in movies]
+	r = np.asarray(ratings)
+	n = (r-np.mean(r))/np.std(r)
+	for i in range(len(movies)):
+		movies[i][index] = n[i]
+	return movies
+
 def get_processed_movies(file="data/movies.csv", min_votes=50, batch_size=200, train_split=.8, sort_index=1, cast_limit=10, text_limit=-1):
-	train, test = get_train_test(filter_min_votes(get_movies(file), min_votes), batch_size, train_split, sort_index)
+	movies = filter_min_votes(get_movies(file), min_votes)
+	movies = normalize_labels(movies)
+	train, test = get_train_test(movies, batch_size, train_split, sort_index)
 	shuffle(train)
 	shuffle(test)
 	return [all_to_text(train, cast_limit, text_limit), all_to_text(test, cast_limit, text_limit)]
