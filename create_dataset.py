@@ -117,8 +117,9 @@ def main(data_file='data/movies.csv', vecs_file='data/GoogleNews-vectors-negativ
 	test_y,test_x = get_labels_vectors(test, word2vec, word_size, padding)
 	datas = [
 			(train_x, "train_x"),
+			(test_x, "test_x")]
+	labels = [
 			(train_y, "train_y"),
-			(test_x, "test_x"),
 			(test_y, "test_y")]
 
 	#lmdb
@@ -127,6 +128,8 @@ def main(data_file='data/movies.csv', vecs_file='data/GoogleNews-vectors-negativ
 
 	for data, folder in datas:
 		create_dataset_x(data, folder)
+	for label, folder in labels:
+		create_dataset_y(label, folder)
 
 
 if __name__ == '__main__':
