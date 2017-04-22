@@ -13,9 +13,9 @@ import time
 import shutil
 
 
-def load_word2vec(path='data/GoogleNews-vectors-negative300.bin'):
+def load_word2vec(path='data/GoogleNews-vectors-negative300.bin', binary=True):
 	print("Loading Vectors...")
-	model = KeyedVectors.load_word2vec_format(path, binary=True)
+	model = KeyedVectors.load_word2vec_format(path, binary=binary)
 	print("Vectors Loaded")
 	print("")
 	return model
@@ -110,8 +110,8 @@ def dir_check(folder):
 		shutil.rmtree(folder)
 	os.makedirs(folder)
 
-def main(data_file='data/movies.csv', vecs_file='data/GoogleNews-vectors-negative300.bin', padding='</s>', word_size=100):
-	word2vec = load_word2vec(vecs_file)
+def main(data_file='data/movies.csv', vecs_file='data/GoogleNews-vectors-negative300.bin', padding='</s>', word_size=100, binary=True):
+	word2vec = load_word2vec(vecs_file, binary)
 	train,test = idh.get_processed_movies(data_file)
 	train_y,train_x = get_labels_vectors(train, word2vec, word_size, padding)
 	test_y,test_x = get_labels_vectors(test, word2vec, word_size, padding)
@@ -133,8 +133,10 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Create Dataset from CSV and Vectors')
 	parser.add_argument('--data', help='Movie CSV file', default='data/movies.csv', action="store")
 	parser.add_argument('--vecs', help='Vector binary file', default='data/GoogleNews-vectors-negative300.bin', action="store")
+	parser.add_argument('-b', help='Vector file is binary', default=True, action="store_false")
 	parser.add_argument('--padd', help='Padding string', default='</s>', action="store")
 	parser.add_argument('--words', help='Number of words', type=int, default=100, action="store")
+
 	args = vars(parser.parse_args())
 
 	if not os.path.exists('lmdbs'):
@@ -142,7 +144,7 @@ if __name__ == '__main__':
 
 	start_time = time.time()
 
-	main(args['data'],args['vecs'],args['padd'],args['words'])
+	main(args['data'],args['vecs'],args['padd'],args['words'],args['b'])
 
 	print 'Done after %s seconds' % (time.time() - start_time)
 
