@@ -95,7 +95,7 @@ def create_dataset_y(data_y, folder):
 	bar = progressbar.ProgressBar()
 	print("Generating labels lmdb for " + folder)
 	for i in bar(range(len(data_y))):
-		datum = caffe.io.array_to_datum(data_y[i].astype('float').reshape((1,1,1)))
+		datum = caffe.io.array_to_datum(data_y[i].astype('int8').reshape((1,1,1)))
 		batch.append(('{:0>10d}'.format(i+1), datum))
 		if len(batch) >= db_batch_size:
 				_write_batch_to_lmdb(output_db, batch)
@@ -112,7 +112,7 @@ def dir_check(folder):
 
 def main(data_file='data/movies.csv', vecs_file='data/GoogleNews-vectors-negative300.bin', padding='</s>', word_size=100, binary=True):
 	word2vec = load_word2vec(vecs_file, binary)
-	train,test = idh.get_processed_movies(data_file)
+	train,test = idh.get_processed_movies(data_file, classes=True)
 	train_y,train_x = get_labels_vectors(train, word2vec, word_size, padding)
 	test_y,test_x = get_labels_vectors(test, word2vec, word_size, padding)
 	datas = [

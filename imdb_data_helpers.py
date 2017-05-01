@@ -118,9 +118,18 @@ def normalize_labels(movies, index=3):
 		movies[i][index] = n[i]
 	return movies
 
-def get_processed_movies(file="data/movies.csv", min_votes=50, batch_size=200, train_split=.8, sort_index=1, cast_limit=10, text_limit=-1):
+def labels_to_classes(movies):
+	for m in movies:
+		m[3] = int(m[3]*2)+1
+	return movies
+
+
+def get_processed_movies(file="data/movies.csv", min_votes=50, batch_size=200, train_split=.8, sort_index=1, cast_limit=10, text_limit=-1, normalize=False, classes=False):
 	movies = filter_min_votes(get_movies(file), min_votes)
-	movies = normalize_labels(movies)
+	if classes:
+		movies = labels_to_classes(movies)
+	elif normalize:
+		movies = normalize_labels(movies)
 	train, test = get_train_test(movies, batch_size, train_split, sort_index)
 	shuffle(train)
 	shuffle(test)
