@@ -95,7 +95,7 @@ def create_dataset_y(data_y, folder):
 	bar = progressbar.ProgressBar()
 	print("Generating labels lmdb for " + folder)
 	for i in bar(range(len(data_y))):
-		datum = caffe.io.array_to_datum(data_y[i].astype('int8').reshape((1,1,1)))
+		datum = caffe.io.array_to_datum(data_y[i].astype('int').reshape((1,1,1)))
 		batch.append(('{:0>10d}'.format(i+1), datum))
 		if len(batch) >= db_batch_size:
 				_write_batch_to_lmdb(output_db, batch)
